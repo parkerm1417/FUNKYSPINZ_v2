@@ -9,26 +9,27 @@
     </head>
     <body>
         <div id="wrapper">
-            <div id="info">
-                <p id="credits"></p>
-                <p id="log"></p>
-            </div>
             <canvas id="slotsArea">
             </canvas>
             <div id="autoSpinButton" class="off" onclick="AutoSpin_Toggle()">
             </div>
-            <div id="lineButton">
+            <div id="lineButton" onclick="increaseLines()">
             </div>
             <div id="betButton">
             </div>
             <div id="maxBetButton">
             </div>
-            <div id="spinButton">
+            <div id="spinButton" onclick="spin()">
             </div>
-            <div id="info">
+            <div id="credit_div">
                 <p id="credits"></p>
+            </div>
+            <div id="lines_div">
+                <p id="lines"></p>
+            </div>
+            <div>
                 <p id="log"></p>
-              </div>
+            </div>
         </div>
         <script type="text/javascript">
             init();

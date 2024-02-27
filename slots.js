@@ -27,6 +27,7 @@ var can;     // canvas
 var ctx;     // context
 var log_p;   // log paragraph
 var cred_p;  // credits paragraph
+var lines_p; //lines paragraph
 
 var symbols_loaded = false;
 var reels_bg_loaded = false;
@@ -332,7 +333,7 @@ function logic_reward() {
 
   payout--;
   credits++;
-  cred_p.innerHTML = "Karma (" + credits + ")";
+  cred_p.innerHTML = "Credits = " + credits;
   
   if (payout < reward_grand_threshhold) {
     reward_delay_counter = reward_delay;
@@ -443,7 +444,6 @@ function calc_reward() {
   }
 
   if (playing_lines > 1) {
-
     // Line 2
     partial_payout = calc_line(result[0][0], result[1][0], result[2][0]);
     if (partial_payout > 0) {
@@ -451,8 +451,10 @@ function calc_reward() {
       payout += partial_payout;
       highlight_line(2);
     }
+  }
 
-    // Line 3
+  if (playing_lines > 2){
+      // Line 3
     partial_payout = calc_line(result[0][2], result[1][2], result[2][2]);
     if (partial_payout > 0) {
       log_p.innerHTML += "Line 3 pays " + partial_payout + "<br />\n";
@@ -461,9 +463,7 @@ function calc_reward() {
     }
   }
 
-
   if (playing_lines > 3) {
-
     // Line 4
     partial_payout = calc_line(result[0][0], result[1][1], result[2][2]);
     if (partial_payout > 0) {
@@ -471,7 +471,9 @@ function calc_reward() {
       payout += partial_payout;
       highlight_line(4);
     }
+  }
 
+  if(playing_lines > 4){
     // Line 5
     partial_payout = calc_line(result[0][2], result[1][1], result[2][0]);
     if (partial_payout > 0) {
@@ -494,30 +496,34 @@ function calc_reward() {
 
 //---- Input Functions ---------------------------------------------
 
-function handleKey(evt) {
-  if (evt.keyCode == 32) { // spacebar
-    if (game_state != STATE_REST) return;
+// function handleKey(evt) {
+//   if (evt.keyCode == 32) { // spacebar
+//     if (game_state != STATE_REST) return;
 
-    if (credits >= 5) spin(5);
-    else if (credits >= 3) spin(3);
-    else if (credits >= 1) spin(1);
+//     if (credits >= 5) spin(5);
+//     else if (credits >= 3) spin(3);
+//     else if (credits >= 1) spin(1);
 
-  }
-}
+//   }
+// }
 
-function spin(line_choice) {
-  
+function spin() {
   if (game_state != STATE_REST) return;
-  if (credits < line_choice) return;
+  if (credits < playing_lines) return;
 
-  credits -= line_choice;
-  playing_lines = line_choice;
+  credits -= playing_lines;
 
-  cred_p.innerHTML = "Karma (" + credits + ")";
+  cred_p.innerHTML = "Credits = " + credits;
   log_p.innerHTML = "";
 
   game_state = STATE_SPINUP;
 
+}
+
+function increaseLines(){
+    playing_lines++;
+    playing_lines = playing_lines % 5;
+    lines_p.innerHTML = "Lines = " + playing_lines;
 }
 
 //---- Init Functions -----------------------------------------------
@@ -527,10 +533,12 @@ function init() {
   ctx = can.getContext("2d");
   log_p = document.getElementById("log");
   cred_p = document.getElementById("credits");
+  lines_p = document.getElementById("lines");
 
-  cred_p.innerHTML = "Karma (" + credits + ")"
+  cred_p.innerHTML = "Credits = " + credits;
+  lines_p.innerHTML = "Lines = " + lines;
 
-  window.addEventListener('keydown', handleKey, true);
+  //window.addEventListener('keydown', handleKey, true);
 
   symbols.onload = function() {
     symbols_loaded = true;

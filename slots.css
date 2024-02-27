@@ -125,18 +125,31 @@ cursor: none;
     background-size: 100% 100%;
 }
 
+@font-face {
+    font-family: GraphicPixel;
+    src: url("./assets/fonts/GraphicPixel-Regular.ttf");
+}
+
 #info {
     position: absolute;
-    top: 20px;
-    left: 200px;
+    top: 66%;
+    left: 30%;
     width: 100px;
     text-align: left;
-    font-size: 9pt;
-    font-family: arial, helvetica, sans-serif;
+    font-size: 32pt;
+    font-family: GraphicPixel;
+    color: red;
   }
   
   #credits {
-    font-size: 10pt;
+    font-size: 12pt;
+    text-shadow: 1px 1px 2px red, 0 0 1em blue, 0 0 0.2em blue;
+  }
+
+  #lines {
+    font-size: 12pt;
+    text-shadow: 1px 1px 2px red, 0 0 1em blue, 0 0 0.2em blue;
+    left: 30%;
   }
   
   #log {
