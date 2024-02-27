@@ -1,64 +1,14 @@
 <!doctype html>
 <html>
     <head>
+        <link rel="stylesheet" href="./main.css" type="text/css">
         <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"><meta name="robots" content="noindex, nofollow">
-        
-        <style>html,
-            body {
-                margin: 0;
-                position: relative;
-                width: 100%;
-                height: 100%;
-                background: #000;
-            }
-
-            canvas {
-            margin: 0 auto;
-            display: block;
-            cursor: none;
-            }
-
-            /*The wrapper determines the overall background and canvas size for the game, everything else is in relation to this*/
-            .wrapper {
-                background: url('./assets/images/background/Lucky FUNKZ_backup.png');
-                background-size: 91% 100%;
-                width: 98%;
-                height: 90%;
-                position: absolute;
-                display: block;
-                flex-direction: column;
-                justify-content: center;
-                align-items: center;
-                touch-action: none;
-                top: 1.8%;
-                left: 1%;
-            }
-
-            /*CSS for the auto play button*/
-            .autoButton {
-                height: 14%;
-                width: 15%;
-                position: absolute;
-                top: 73%;
-                left: 17%;
-                background-size: 91% 100%;
-            }
-
-            .autoButton.off{
-                background: url('./assets/images/ui/buttons/auto_unpressed.png');
-            }
-
-            .autoButton.on{
-                background: url('./assets/images/ui/buttons/auto_pressed.png');
-            }
-            
-        </style>
         <script defer="defer" src="./apps/bitcorn/LuckyFUNKZ/js/slots.js">
         </script>
     </head>
     <body>
-        <div class="wrapper">
-            <div class="autoButton off">
+        <div id="wrapper">
+            <div id="autoButton" class="off">
             </div>
         </div>
     </body>
