@@ -1,0 +1,117 @@
+html,body {
+    margin: 0;
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background: #000;
+}
+
+canvas {
+margin: 0 auto;
+display: block;
+cursor: none;
+}
+
+/*The wrapper determines the overall background and canvas size for the game, everything else is in relation to this*/
+#wrapper {
+    background: url('./assets/images/background/LuckyFUNKZ.png');
+    background-size: 91% 100%;
+    width: 98%;
+    height: 90%;
+    position: absolute;
+    display: block;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    touch-action: none;
+    top: 1.8%;
+    left: 1%;
+}
+
+/*CSS for the auto play button*/
+#autoSpinButton {
+    height: 13%;
+    width: 11%;
+    position: absolute;
+    top: 74%;
+    left: 26%;
+}
+
+#autoSpinButton.off{
+    background: url('./assets/images/ui/buttons/auto_unpressed.png');
+    background-size: 100% 100%;
+}
+
+#autoSpinButton.on{
+    background: url('./assets/images/ui/buttons/auto_pressed.png');
+    background-size: 100% 100%;
+}
+
+#autoSpinButton.clicked{
+    background: url('./assets/images/ui/buttons/auto_press.png');
+    background-size: 100% 100%;
+}
+
+/*CSS for the line button*/
+#lineButton{
+    background: url('./assets/images/ui/buttons/lines_unpressed.png');
+    background-size: 100% 100%;
+    height: 11%;
+    width: 9%;
+    position: absolute;
+    top: 72%;
+    left: 34%;
+}
+
+#lineButton.clicked{
+    background: url('./assets/images/ui/buttons/lines_pressed.png');
+    background-size: 100% 100%;
+}
+
+/*CSS for the bet one button*/
+#betButton{
+    background: url('./assets/images/ui/buttons/bet_one_unpressed.png');
+    background-size: 100% 100%;
+    height: 11%;
+    width: 9%;
+    position: absolute;
+    top: 75%;
+    left: 41%;
+}
+
+#betButton.clicked{
+    background: url('./assets/images/ui/buttons/bet_one_pressed.png');
+    background-size: 100% 100%;
+}
+
+/*CSS for the max bet button*/
+#maxBetButton{
+    background: url('./assets/images/ui/buttons/bet_max_unpressed.png');
+    background-size: 100% 100%;
+    height: 11%;
+    width: 9%;
+    position: absolute;
+    top: 72%;
+    left: 48%;
+}
+
+#maxBetButton.clicked{
+    background: url('./assets/images/ui/buttons/bet_max_pressed.png');
+    background-size: 100% 100%;
+}
+
+/*CSS for the spin button*/
+#spinButton{
+    background: url('./assets/images/ui/buttons/spin_unpressed.png');
+    background-size: 100% 100%;
+    height: 13%;
+    width: 11%;
+    position: absolute;
+    top: 74%;
+    left: 54%;
+}
+
+#spinButton.clicked{
+    background: url('./assets/images/ui/buttons/spin_pressed.png');
+    background-size: 100% 100%;
+}
