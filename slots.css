@@ -47,7 +47,7 @@ cursor: none;
     background-size: 100% 100%;
 }
 
-#autoSpinButton.clicked{
+#autoSpinButton:active{
     background: url('./assets/images/ui/buttons/auto_press.png');
     background-size: 100% 100%;
 }
@@ -63,7 +63,7 @@ cursor: none;
     left: 34%;
 }
 
-#lineButton.clicked{
+#lineButton:active{
     background: url('./assets/images/ui/buttons/lines_pressed.png');
     background-size: 100% 100%;
 }
@@ -79,7 +79,7 @@ cursor: none;
     left: 41%;
 }
 
-#betButton.clicked{
+#betButton:active{
     background: url('./assets/images/ui/buttons/bet_one_pressed.png');
     background-size: 100% 100%;
 }
@@ -95,7 +95,7 @@ cursor: none;
     left: 48%;
 }
 
-#maxBetButton.clicked{
+#maxBetButton:active{
     background: url('./assets/images/ui/buttons/bet_max_pressed.png');
     background-size: 100% 100%;
 }
@@ -111,7 +111,7 @@ cursor: none;
     left: 54%;
 }
 
-#spinButton.clicked{
+#spinButton:active{
     background: url('./assets/images/ui/buttons/spin_pressed.png');
     background-size: 100% 100%;
 }
