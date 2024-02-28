@@ -14,27 +14,27 @@ cursor: none;
 
 /*The wrapper determines the overall background and canvas size for the game, everything else is in relation to this*/
 #wrapper {
-    background: url('./assets/images/background/LuckyFUNKZ.png');
+    background: url(./assets/images/background/LuckyFUNKZ.png);
     background-size: 91% 100%;
-    width: 98%;
-    height: 90%;
+    width: 820px;
+    height: 653px;
     position: absolute;
     display: block;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     touch-action: none;
-    top: 1.8%;
-    left: 1%;
+    top: 0;
+    left: 0;
 }
 
 /*Gameplay area*/
 #slotsArea {
-    width: 100%;
+    width: 92%;
     height: 57%;
     position: absolute;
     top: 17%;
-    left: 19%;
+    left: 21%;
 }
 
 /*CSS for the auto play button*/
