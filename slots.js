@@ -25,19 +25,31 @@ setInterval(function() {
 // html elements
 var can;     // canvas
 var ctx;     // context
-var log_p;   // log paragraph
 var cred_p;  // credits paragraph
 var lines_p; //lines paragraph
+var bet_p;   //bet paragraph6
 
 var symbols_loaded = false;
 var reels_bg_loaded = false;
 
 // art
-var symbols = new Image();
+// var symbols = [];
+// var symbol0 = new Image(); symbol0.src = "./assets/images/symbols/00.png"; symbols.push(symbol0);
+// var symbol1 = new Image(); symbol1.src = "./assets/images/symbols/01.png"; symbols.push(symbol1);
+// var symbol2 = new Image(); symbol2.src = "./assets/images/symbols/02.png"; symbols.push(symbol2);
+// var symbol3 = new Image(); symbol3.src = "./assets/images/symbols/03.png"; symbols.push(symbol3);
+// var symbol4 = new Image(); symbol4.src = "./assets/images/symbols/04.png"; symbols.push(symbol4);
+// var symbol5 = new Image(); symbol5.src = "./assets/images/symbols/05.png"; symbols.push(symbol5);
+// var symbol6 = new Image(); symbol6.src = "./assets/images/symbols/06.png"; symbols.push(symbol6);
+// var symbol7 = new Image(); symbol7.src = "./assets/images/symbols/07.png"; symbols.push(symbol7);
+// var symbol8 = new Image(); symbol8.src = "./assets/images/symbols/08.png"; symbols.push(symbol8);
+// var symbol9 = new Image(); symbol9.src = "./assets/images/symbols/09.png"; symbols.push(symbol9);
+// var symbol10 = new Image(); symbol10.src = "./assets/images/symbols/10.png"; symbols.push(symbol10);
 var reels_bg = new Image();
 var snd_reel_stop = new Array();
 var snd_win;
 
+var symbols = new Image();
 symbols.src = "./assets/reddit_icons_small.png";
 reels_bg.src = "./assets/reels_bg.png";
 
@@ -67,6 +79,9 @@ var starting_credits = 100;
 var reward_delay = 3; // how many frames between each credit tick
 var reward_delay_grand = 1; // delay for grand-prize winning
 var reward_grand_threshhold = 25; // count faster if the reward is over this size
+var bet = 1;
+var maxBet = 5;
+var maxLines = 3;
 
 var match_payout = new Array(symbol_count);
 match_payout[7] = 4; // 3Down
@@ -118,7 +133,7 @@ var game_state = STATE_REST;
 var credits = starting_credits;
 var payout = 0;
 var reward_delay_counter = 0;
-var playing_lines;
+var playing_lines = 1;
 
 //---- Render Functions ---------------------------------------------
 
@@ -358,7 +373,9 @@ function logic() {
   else if (game_state == STATE_REWARD) {
     logic_reward();
   }
-  
+  else if (game_state == STATE_REST && $("#autoSpinButton").hasClass("on")){
+    spin();
+  }
 }
 
 // given an input line of symbols, determine the payout
@@ -366,26 +383,26 @@ function calc_line(s1, s2, s3) {
 
   // perfect match
   if (s1 == s2 && s2 == s3) {
-    return match_payout[s1];
+    return match_payout[s1] * bet;
   }
 
   // special case #1: triple ups
   if ((s1 == 1 || s1 == 2 || s1 == 3) &&
       (s2 == 1 || s2 == 2 || s2 == 3) &&
       (s3 == 1 || s3 == 2 || s3 == 3)) {
-    return payout_ups;
+    return payout_ups * bet;
   }
 
   // special case #2: triple down
   if ((s1 == 5 || s1 == 6 || s1 == 7) &&
       (s2 == 5 || s2 == 6 || s2 == 7) &&
       (s3 == 5 || s3 == 6 || s3 == 7)) {
-    return payout_downs;
+    return payout_downs * bet;
   }
 
   // special case #3: bacon goes with everything
   if (s1 == 9) {
-    if (s2 == s3) return match_payout[s2];
+    if (s2 == s3) return match_payout[s2] * bet;
 
     // wildcard trip ups
     if ((s2 == 1 || s2 == 2 || s2 == 3) &&
@@ -397,33 +414,33 @@ function calc_line(s1, s2, s3) {
   
   }
   if (s2 == 9) {
-    if (s1 == s3) return match_payout[s1];
+    if (s1 == s3) return match_payout[s1] * bet;
 
     // wildcard trip ups
     if ((s1 == 1 || s1 == 2 || s1 == 3) &&
-        (s3 == 1 || s3 == 2 || s3 == 3)) return payout_ups;
+        (s3 == 1 || s3 == 2 || s3 == 3)) return payout_ups * bet;
 
     // wildcard trip downs
     if ((s1 == 5 || s1 == 6 || s1 == 7) &&
-        (s3 == 5 || s3 == 6 || s3 == 7)) return payout_downs;
+        (s3 == 5 || s3 == 6 || s3 == 7)) return payout_downs * bet;
 
   }
   if (s3 == 9) {
-    if (s1 == s2) return match_payout[s1];
+    if (s1 == s2) return match_payout[s1] * bet;
 
     // wildcard trip ups
     if ((s1 == 1 || s1 == 2 || s1 == 3) &&
-        (s2 == 1 || s2 == 2 || s2 == 3)) return payout_ups;
+        (s2 == 1 || s2 == 2 || s2 == 3)) return payout_ups * bet;
 
     // wildcard trip downs
     if ((s1 == 5 || s1 == 6 || s1 == 7) &&
-        (s2 == 5 || s2 == 6 || s2 == 7)) return payout_downs;
+        (s2 == 5 || s2 == 6 || s2 == 7)) return payout_downs * bet;
   }
 
   // check double-bacon
-  if (s2 == 9 && s3 == 9) return match_payout[s1];
-  if (s1 == 9 && s3 == 9) return match_payout[s2];
-  if (s1 == 9 && s2 == 9) return match_payout[s3];
+  if (s2 == 9 && s3 == 9) return match_payout[s1] * bet;
+  if (s1 == 9 && s3 == 9) return match_payout[s2] * bet;
+  if (s1 == 9 && s2 == 9) return match_payout[s3] * bet;
 
   // no reward
   return 0;
@@ -438,7 +455,6 @@ function calc_reward() {
   // Line 1
   partial_payout = calc_line(result[0][1], result[1][1], result[2][1]);
   if (partial_payout > 0) {
-    log_p.innerHTML += "Line 1 pays " + partial_payout + "<br />\n";
     payout += partial_payout;
     highlight_line(1);
   }
@@ -447,7 +463,6 @@ function calc_reward() {
     // Line 2
     partial_payout = calc_line(result[0][0], result[1][0], result[2][0]);
     if (partial_payout > 0) {
-      log_p.innerHTML += "Line 2 pays " + partial_payout + "<br />\n";
       payout += partial_payout;
       highlight_line(2);
     }
@@ -457,7 +472,6 @@ function calc_reward() {
       // Line 3
     partial_payout = calc_line(result[0][2], result[1][2], result[2][2]);
     if (partial_payout > 0) {
-      log_p.innerHTML += "Line 3 pays " + partial_payout + "<br />\n";
       payout += partial_payout;
       highlight_line(3);
     }
@@ -467,7 +481,6 @@ function calc_reward() {
     // Line 4
     partial_payout = calc_line(result[0][0], result[1][1], result[2][2]);
     if (partial_payout > 0) {
-      log_p.innerHTML += "Line 4 pays " + partial_payout + "<br />\n";
       payout += partial_payout;
       highlight_line(4);
     }
@@ -477,7 +490,6 @@ function calc_reward() {
     // Line 5
     partial_payout = calc_line(result[0][2], result[1][1], result[2][0]);
     if (partial_payout > 0) {
-      log_p.innerHTML += "Line 5 pays " + partial_payout + "<br />\n";
       payout += partial_payout;
       highlight_line(5);
     }
@@ -509,21 +521,37 @@ function calc_reward() {
 
 function spin() {
   if (game_state != STATE_REST) return;
-  if (credits < playing_lines) return;
+  if (credits < (playing_lines * bet)) return;
 
-  credits -= playing_lines;
+  credits -= playing_lines * bet;
 
   cred_p.innerHTML = "Credits = " + credits;
-  log_p.innerHTML = "";
 
   game_state = STATE_SPINUP;
 
 }
 
 function increaseLines(){
-    playing_lines++;
-    playing_lines = playing_lines % 5;
+    if(playing_lines == maxLines)
+        playing_lines = 1;
+    else
+        playing_lines++;
+
     lines_p.innerHTML = "Lines = " + playing_lines;
+}
+
+function increaseBet(){
+    if(bet == maxBet)
+        bet = 1;
+    else
+        bet++;
+
+    bet_p.innerHTML = "Bet = " + bet;
+}
+
+function setBetMax(){
+    bet = maxBet;
+    bet_p.innerHTML = "Bet = " + bet;
 }
 
 //---- Init Functions -----------------------------------------------
@@ -531,12 +559,13 @@ function increaseLines(){
 function init() {
   can = document.getElementById("slotsArea"); 
   ctx = can.getContext("2d");
-  log_p = document.getElementById("log");
   cred_p = document.getElementById("credits");
   lines_p = document.getElementById("lines");
+  bet_p = document.getElementById("bet");
 
   cred_p.innerHTML = "Credits = " + credits;
-  lines_p.innerHTML = "Lines = " + lines;
+  lines_p.innerHTML = "Lines = " + playing_lines;
+  bet_p.innerHTML = "Bet = " + bet;
 
   //window.addEventListener('keydown', handleKey, true);
 
@@ -549,5 +578,4 @@ function init() {
     reels_bg_loaded = true;
     if (symbols_loaded && reels_bg_loaded) render_reel();
   };
-
 }

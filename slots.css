@@ -129,29 +129,39 @@ cursor: none;
     font-family: GraphicPixel;
     src: url("./assets/fonts/GraphicPixel-Regular.ttf");
 }
-
-#info {
+  
+#credit_div {
     position: absolute;
     top: 66%;
-    left: 30%;
+    left: 29%;
+    width: 15%;
+    text-align: left;
+    font-size: 12pt;
+    text-shadow: 1px 1px 2px #38ff00, 0 0 1em #ebff00, 0 0 0.2em #00ffaa;
+    font-family: GraphicPixel;
+    color: #38ff00;
+}
+
+#lines_div {
+    position: absolute;
+    top: 66%;
+    left: 53%;
     width: 100px;
     text-align: left;
-    font-size: 32pt;
+    font-size: 12pt;
+    text-shadow: 1px 1px 2px red, 0 0 1em #9600ff, 0 0 0.2em #ff004e;
     font-family: GraphicPixel;
-    color: red;
-  }
+    color: #e0e91b;
+}
   
-  #credits {
+#bet_div {
+    position: absolute;
+    top: 66%;
+    left: 44%;
+    width: 10%;
+    text-align: left;
     font-size: 12pt;
-    text-shadow: 1px 1px 2px red, 0 0 1em blue, 0 0 0.2em blue;
-  }
-
-  #lines {
-    font-size: 12pt;
-    text-shadow: 1px 1px 2px red, 0 0 1em blue, 0 0 0.2em blue;
-    left: 30%;
-  }
-  
-  #log {
-    color: #666666;
-  }
+    text-shadow: 1px 1px 2px red, 0 0 1em #00ffa1, 0 0 0.2em #00f6ff;
+    font-family: GraphicPixel;
+    color: aqua;
+}
