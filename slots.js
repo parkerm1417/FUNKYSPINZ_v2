@@ -31,32 +31,31 @@ var bet_p;   //bet paragraph6
 
 var symbols_loaded = false;
 var reels_bg_loaded = false;
-
 // art
 var symbols = [];
-var symbol0 = new Image(); symbol0.src = "./assets/images/symbols/00.png"; symbols.push(symbol0);
-var symbol1 = new Image(); symbol1.src = "./assets/images/symbols/01.png"; symbols.push(symbol1);
-var symbol2 = new Image(); symbol2.src = "./assets/images/symbols/02.png"; symbols.push(symbol2);
-var symbol3 = new Image(); symbol3.src = "./assets/images/symbols/03.png"; symbols.push(symbol3);
-var symbol4 = new Image(); symbol4.src = "./assets/images/symbols/04.png"; symbols.push(symbol4);
-var symbol5 = new Image(); symbol5.src = "./assets/images/symbols/05.png"; symbols.push(symbol5);
-var symbol6 = new Image(); symbol6.src = "./assets/images/symbols/06.png"; symbols.push(symbol6);
-var symbol7 = new Image(); symbol7.src = "./assets/images/symbols/07.png"; symbols.push(symbol7);
-var symbol8 = new Image(); symbol8.src = "./assets/images/symbols/08.png"; symbols.push(symbol8);
-var symbol9 = new Image(); symbol9.src = "./assets/images/symbols/09.png"; symbols.push(symbol9);
-var symbol10 = new Image(); symbol10.src = "./assets/images/symbols/10.png"; symbols.push(symbol10);
+var symbol0 = new Image(); symbol0.src = "./apps/bitcorn/FUNKYSPINZ_v2/assets/images/symbols/00.png"; symbols.push(symbol0);
+var symbol1 = new Image(); symbol1.src = "./apps/bitcorn/FUNKYSPINZ_v2/assets/images/symbols/01.png"; symbols.push(symbol1);
+var symbol2 = new Image(); symbol2.src = "./apps/bitcorn/FUNKYSPINZ_v2/assets/images/symbols/02.png"; symbols.push(symbol2);
+var symbol3 = new Image(); symbol3.src = "./apps/bitcorn/FUNKYSPINZ_v2/assets/images/symbols/03.png"; symbols.push(symbol3);
+var symbol4 = new Image(); symbol4.src = "./apps/bitcorn/FUNKYSPINZ_v2/assets/images/symbols/04.png"; symbols.push(symbol4);
+var symbol5 = new Image(); symbol5.src = "./apps/bitcorn/FUNKYSPINZ_v2/assets/images/symbols/05.png"; symbols.push(symbol5);
+var symbol6 = new Image(); symbol6.src = "./apps/bitcorn/FUNKYSPINZ_v2/assets/images/symbols/06.png"; symbols.push(symbol6);
+var symbol7 = new Image(); symbol7.src = "./apps/bitcorn/FUNKYSPINZ_v2/assets/images/symbols/07.png"; symbols.push(symbol7);
+var symbol8 = new Image(); symbol8.src = "./apps/bitcorn/FUNKYSPINZ_v2/assets/images/symbols/08.png"; symbols.push(symbol8);
+var symbol9 = new Image(); symbol9.src = "./apps/bitcorn/FUNKYSPINZ_v2/assets/images/symbols/09.png"; symbols.push(symbol9);
+var symbol10 = new Image(); symbol10.src = "./apps/bitcorn/FUNKYSPINZ_v2/assets/images/symbols/10.png"; symbols.push(symbol10);
 var reels_bg = new Image();
 var snd_reel_stop = new Array();
 var snd_win;
 
 // var symbols = new Image();
 // symbols.src = "./assets/reddit_icons_small.png";
-reels_bg.src = "./assets/reels_bg.png";
+reels_bg.src = "./apps/bitcorn/FUNKYSPINZ_v2/assets/reels_bg.png";
 
-snd_win = new Audio("audio/win.wav");
-snd_reel_stop[0] = new Audio("audio/reel_stop.wav");
-snd_reel_stop[1] = new Audio("audio/reel_stop.wav");
-snd_reel_stop[2] = new Audio("audio/reel_stop.wav");
+snd_win = new Audio("./apps/bitcorn/FUNKYSPINZ_v2/audio/win.wav");
+snd_reel_stop[0] = new Audio("./apps/bitcorn/FUNKYSPINZ_v2/audio/reel_stop.wav");
+snd_reel_stop[1] = new Audio("./apps/bitcorn/FUNKYSPINZ_v2/audio/reel_stop.wav");
+snd_reel_stop[2] = new Audio("./apps/bitcorn/FUNKYSPINZ_v2/audio/reel_stop.wav");
 
 // enums
 var STATE_REST = 0;
