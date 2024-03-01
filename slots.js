@@ -1,57 +1,60 @@
-/**
+/*
+Copyright (c) 2012 Clint Bellanger [MIT License]
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"),
+to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
+and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+    - The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
-Copyright (c) 2012 Clint Bellanger
-
-MIT License:
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+DEALINGS IN THE SOFTWARE.
 
 Sounds by Brandon Morris (CC-BY 3.0)
 Art by Clint Bellanger (CC-BY 3.0)
-
 */
 
-var FPS = 60;
-setInterval(function() {
-  logic();
-  render();
-}, 1000/FPS);
+var FPS = 120;
+setInterval(function () {
+    logic();
+    render();
+}, 1000 / FPS);
 
 // html elements
-var can;     // canvas
-var ctx;     // context
-var cred_p;  // credits paragraph
-var lines_p; //lines paragraph
-var bet_p;   //bet paragraph6
+var scale = 5;
+var can; // canvas
+var ctx; // context
+var credit_div; // credits paragraph
+var lines_div; // lines paragraph
+var bet_div; // bet paragraph
 
+var font_loaded = false;
 var symbols_loaded = false;
 var reels_bg_loaded = false;
 
 // art
 var symbols = [];
-var symbol0 = new Image(); symbol0.src = "./assets/images/symbols/00.png"; symbols.push(symbol0);
-var symbol1 = new Image(); symbol1.src = "./assets/images/symbols/01.png"; symbols.push(symbol1);
-var symbol2 = new Image(); symbol2.src = "./assets/images/symbols/02.png"; symbols.push(symbol2);
-var symbol3 = new Image(); symbol3.src = "./assets/images/symbols/03.png"; symbols.push(symbol3);
-var symbol4 = new Image(); symbol4.src = "./assets/images/symbols/04.png"; symbols.push(symbol4);
-var symbol5 = new Image(); symbol5.src = "./assets/images/symbols/05.png"; symbols.push(symbol5);
-var symbol6 = new Image(); symbol6.src = "./assets/images/symbols/06.png"; symbols.push(symbol6);
-var symbol7 = new Image(); symbol7.src = "./assets/images/symbols/07.png"; symbols.push(symbol7);
-var symbol8 = new Image(); symbol8.src = "./assets/images/symbols/08.png"; symbols.push(symbol8);
-var symbol9 = new Image(); symbol9.src = "./assets/images/symbols/09.png"; symbols.push(symbol9);
-var symbol10 = new Image(); symbol10.src = "./assets/images/symbols/10.png"; symbols.push(symbol10);
+var symbol_count = 10;
+var loadedSymbolCount = 0;
+
+for (var i = 0; i <= symbol_count; i++) {
+    var symbol = new Image();
+    symbol.onload = function () {
+        loadedSymbolCount++;
+        if (loadedSymbolCount == symbol_count) {
+            symbols_loaded = true;
+            if (font_loaded && symbols_loaded && reels_bg_loaded) render_reel();
+        }
+    };
+    symbol.src = `./assets/images/symbols/${i.toString().padStart(2, "0")}.png`;
+    symbols.push(symbol);
+}
+
 var reels_bg = new Image();
 var snd_reel_stop = new Array();
 var snd_win;
 
-// var symbols = new Image();
-// symbols.src = "./assets/reddit_icons_small.png";
-reels_bg.src = "./assets/reels_bg.png";
+reels_bg.src = "./assets/images/background/LuckyFUNKZ_transparent.png";
 
 snd_win = new Audio("audio/win.wav");
 snd_reel_stop[0] = new Audio("audio/reel_stop.wav");
@@ -65,14 +68,13 @@ var STATE_SPINDOWN = 2;
 var STATE_REWARD = 3;
 
 // config
+var symbol_size = 32 * scale;
 var reel_count = 3;
-var reel_positions = 32;
-var symbol_size = 32;
-var symbol_count = 11;
-var reel_pixel_length = reel_positions * symbol_size;
+var reel_padding = 8;
+
 var row_count = 3;
-var stopping_distance = 528;
-var max_reel_speed = 32;
+var stopping_distance = 528 * scale;
+var max_reel_speed = symbol_size;
 var spinup_acceleration = 2;
 var spindown_acceleration = 1;
 var starting_credits = 100;
@@ -84,35 +86,26 @@ var maxBet = 5;
 var maxLines = 3;
 
 var match_payout = new Array(symbol_count);
-match_payout[7] = 4; // 3Down
-match_payout[6] = 6; // 2Down
-match_payout[5] = 8; // 1Down
-match_payout[1] = 10; // 1Up
-match_payout[2] = 15; // 2Up
-match_payout[3] = 20; // 3Up
-match_payout[4] = 25; // OrangeRed
-match_payout[0] = 50; // AlienHead
-match_payout[9] = 75; // Bacon
-match_payout[10] = 100; // Narwhal
-match_payout[8] = 250; // CakeDay
+//payouts for symbol 1 through 11 (index 0 through 10)
+match_payout = [50, 10, 15, 20, 25, 8, 6, 4, 250, 75, 100];
+var wildCards = [0, 1];
 
-var payout_ups = 6; // Any 3 Ups
-var payout_downs = 2; // Any 3 Downs
-
-var reel_area_left = 32;
-var reel_area_top = 32;
-var reel_area_width = 96;
-var reel_area_height = 96;
+var reel_area_width = symbol_size * reel_count + reel_padding * (reel_count - 1);
+var reel_area_height = symbol_size * row_count;
+var reel_area_left = 78 + symbol_size / 2;
+var reel_area_top = 0;
 
 // set up reels
 var reels = new Array(reel_count);
-reels[0] = new Array(2,1,7,1,2,7,6,7,3,10,1,6,1,7,3,4,3,2,4,5,0,6,10,5,6,5,8,3,0,9,5,4);
-reels[1] = new Array(6,0,10,3,6,7,9,2,5,2,3,1,5,2,1,10,4,5,8,4,7,6,0,1,7,6,3,1,5,9,7,4);
-reels[2] = new Array(1,4,2,7,5,6,4,10,7,5,2,0,6,4,10,1,7,6,3,0,5,7,2,3,9,3,5,6,1,8,1,3);
+reels[0] = new Array(2, 1, 7, 1, 2, 7, 6, 7, 3, 10, 1, 6, 1, 7, 3, 4, 3, 2, 4, 5, 0, 6, 10, 5, 6, 5, 8, 3, 0, 9, 5, 4);
+reels[1] = new Array(6, 0, 10, 3, 6, 7, 9, 2, 5, 2, 3, 1, 5, 2, 1, 10, 4, 5, 8, 4, 7, 6, 0, 1, 7, 6, 3, 1, 5, 9, 7, 4);
+reels[2] = new Array(1, 4, 2, 7, 5, 6, 4, 10, 7, 5, 2, 0, 6, 4, 10, 1, 7, 6, 3, 0, 5, 7, 2, 3, 9, 3, 5, 6, 1, 8, 1, 3);
+var reel_positions = Math.min(reels[0].length, reels[1].length, reels[2].length);
+var reel_pixel_length = reel_positions * symbol_size;
 
 var reel_position = new Array(reel_count);
-for (var i=0; i<reel_count; i++) {
-  reel_position[i] = Math.floor(Math.random() * reel_positions) * symbol_size;
+for (var i = 0; i < reel_count; i++) {
+    reel_position[i] = Math.floor(Math.random() * reel_positions) * symbol_size;
 }
 
 var stopping_position = new Array(reel_count);
@@ -120,13 +113,13 @@ var start_slowing = new Array(reel_count);
 
 // reel spin speed in pixels per frame
 var reel_speed = new Array(reel_count);
-for (var i=0; i<reel_count; i++) {
-  reel_speed[i] = 0;
+for (var i = 0; i < reel_count; i++) {
+    reel_speed[i] = 0;
 }
 
 var result = new Array(reel_count);
-for (var i=0; i<reel_count; i++) {
-  result[i] = new Array(row_count);
+for (var i = 0; i < reel_count; i++) {
+    result[i] = new Array(row_count);
 }
 
 var game_state = STATE_REST;
@@ -136,386 +129,284 @@ var reward_delay_counter = 0;
 var playing_lines = 1;
 
 //---- Render Functions ---------------------------------------------
+function draw_symbol(symbol_index, x, y, reel) {
+    ctx.fillStyle = reel === 0 ? "fuchsia" : reel === 1 ? "lime" : "cyan";
+    const fillX = x + reel * reel_padding;
+    const fillY = y;
 
-function draw_symbol(symbol_index, x, y) {
-    if(x == 0){
-        ctx.fillStyle = "fuchsia";
-    }
-    else if(x == symbol_size){
-        ctx.fillStyle = "lime";
-    }
-    else{
-        ctx.fillStyle = "cyan";
-    }
-    ctx.fillRect(x+reel_area_left,y+reel_area_top, x+reel_area_left+symbol_size, y+reel_area_left+symbol_size);
+    ctx.fillRect(fillX, fillY, symbol_size, symbol_size);
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(symbols[symbol_index], fillX, fillY, symbol_size, symbol_size);
     ctx.strokeStyle = "black";
-    ctx.strokeRect(x+reel_area_left,y+reel_area_top, x+reel_area_left+symbol_size, y+reel_area_left+symbol_size);
-    ctx.drawImage(symbols[symbol_index],x+reel_area_left,y+reel_area_top,symbol_size,symbol_size);
-  //ctx.drawImage(symbols[symbol_index],0,1,symbol_size,symbol_size,x+reel_area_left,y+reel_area_top,symbol_size,symbol_size);
+    ctx.lineWidth = Math.trunc(scale/2+1);
+    ctx.strokeRect(fillX, fillY, symbol_size, symbol_size);
+
 }
 
 function render_reel() {
+    // clear reel
+    ctx.clearRect(0, 0, can.width, can.height);
 
-  // clear reel
-  ctx.drawImage(reels_bg, reel_area_left, reel_area_top);
+    const aspectRatio = reels_bg.width / reels_bg.height;
+    ctx.imageSmoothingEnabled = false;
 
-  // set clipping area
-  ctx.beginPath();
-  ctx.rect(reel_area_left, reel_area_top, reel_area_width, reel_area_height);
-  ctx.clip();
+    const centerX = (can.width - reel_area_width) / 2;
+    const centerY = 304;
 
-  var reel_index;
-  var symbol_offset;
-  var symbol_index;
-  var x;
-  var y;
-
-  for (var i=0; i<reel_count; i++) {
-    for (var j=0; j<row_count +1; j++) {
-
-      reel_index = Math.floor(reel_position[i] / symbol_size) + j;
-      symbol_offset = reel_position[i] % symbol_size;
- 
-      // reel wrap
-      if (reel_index >= reel_positions) reel_index -= reel_positions;
-
-      // symbol lookup
-      symbol_index = reels[i][reel_index];
-
-      x = i * symbol_size;
-      y = j * symbol_size - symbol_offset;
-
-      draw_symbol(symbol_index, x, y);
-
+    for (var i = 0; i < reel_count; i++) {
+        for (var j = 0; j < row_count + 1; j++) {
+            var reel_index = (Math.floor(reel_position[i] / symbol_size) + j) % reel_positions;
+            var symbol_offset = reel_position[i] % symbol_size;
+            var symbol_index = reels[i][reel_index];
+            var x = centerX + i * symbol_size;
+            var y = centerY + j * symbol_size - symbol_offset;
+            draw_symbol(symbol_index, x, y, i);
+        }
     }
-  }
+    ctx.drawImage(reels_bg, 0, 0, aspectRatio * can.height, can.height);
+    renderTextOnCanvas();
 }
 
 function highlight_line(line_num) {
+    const centerX = (can.width - reel_area_width) / 2;
+    const centerY = 304;
 
-  ctx.strokeStyle = "orange";
-  var ss = symbol_size;
+    ctx.strokeStyle = "orange";
+    var ss = symbol_size;
 
-  // top row
-  if (line_num == 2 || line_num == 4) {
-    ctx.strokeRect(reel_area_left, reel_area_top, symbol_size-1, symbol_size-1); // top left
-  }
-  if (line_num == 2) {
-    ctx.strokeRect(reel_area_left + ss, reel_area_top, ss-1, ss-1); // top middle
-  }
-  if (line_num == 2 || line_num == 5) {
-    ctx.strokeRect(reel_area_left + ss + ss, reel_area_top, ss-1, ss-1); // top right
-  }
+    function drawRect(x, y, width, height) {
+        const padding = Math.trunc(x / ss) * reel_padding;
+        const adjustedX = centerX + x;
+        const adjustedY = centerY + y;
 
-  // middle row
-  if (line_num == 1) {
-    ctx.strokeRect(reel_area_left, reel_area_top + ss, ss-1, ss-1); // top left
-  }
-  if (line_num == 1 || line_num == 4 || line_num == 5) {
-    ctx.strokeRect(reel_area_left + ss, reel_area_top + ss, ss-1, ss-1); // top middle
-  }
-  if (line_num == 1) {
-    ctx.strokeRect(reel_area_left + ss + ss, reel_area_top + ss, ss-1, ss-1); // top right
-  }
+        ctx.strokeRect(adjustedX, adjustedY, width - 1, height - 1);
+    }
 
-  // bottom row
-  if (line_num == 3 || line_num == 5) {
-    ctx.strokeRect(reel_area_left, reel_area_top + ss + ss, ss-1, ss-1); // top left
-  }
-  if (line_num == 3) {
-    ctx.strokeRect(reel_area_left + ss, reel_area_top + ss + ss, ss-1, ss-1); // top middle
-  }
-  if (line_num == 3 || line_num == 4) {
-    ctx.strokeRect(reel_area_left + ss + ss, reel_area_top + ss + ss, ss-1, ss-1); // top right
-  }
+    // top row
+    if (line_num == 2 || line_num == 4) {
+        drawRect(0, 0, ss, ss); // top left
+    }
+    if (line_num == 2) {
+        drawRect(ss + reel_padding, 0, ss, ss); // top middle
+    }
+    if (line_num == 2 || line_num == 5) {
+        drawRect(2 * (ss + reel_padding), 0, ss, ss); // top right
+    }
 
+    // middle row
+    if (line_num == 1) {
+        drawRect(0, ss, ss, ss); // top left
+    }
+    if (line_num == 1 || line_num == 4 || line_num == 5) {
+        drawRect(ss + reel_padding, ss, ss, ss); // top middle
+    }
+    if (line_num == 1) {
+        drawRect(2 * (ss + reel_padding), ss, ss, ss); // top right
+    }
+
+    // bottom row
+    if (line_num == 3 || line_num == 5) {
+        drawRect(0, 2 * ss, ss, ss); // top left
+    }
+    if (line_num == 3) {
+        drawRect(ss + reel_padding, 2 * ss, ss, ss); // top middle
+    }
+    if (line_num == 3 || line_num == 4) {
+        drawRect(2 * (ss + reel_padding), 2 * ss, ss, ss); // top right
+    }
 }
 
 // render all art needed in the current frame
 function render() {
-
-  if (game_state == STATE_SPINUP || game_state == STATE_SPINDOWN) {
-    render_reel();
-  }
-
+    if (game_state == STATE_SPINUP || game_state == STATE_SPINDOWN) {
+        if (font_loaded && symbols_loaded && reels_bg_loaded) render_reel();
+    }
 }
-
 
 //---- Logic Functions ---------------------------------------------
 
 function set_stops() {
-  for (var i=0; i<reel_count; i++) {
+    for (var i = 0; i < reel_count; i++) {
+        start_slowing[i] = false;
 
-    start_slowing[i] = false;
+        stop_index = Math.floor(Math.random() * reel_positions);
+        stopping_position[i] = stop_index * symbol_size;
 
-    stop_index = Math.floor(Math.random() * reel_positions);
-    stopping_position[i] = stop_index * symbol_size;
+        stopping_position[i] += stopping_distance;
+        if (stopping_position[i] >= reel_pixel_length) stopping_position[i] -= reel_pixel_length;
 
-    stopping_position[i] += stopping_distance;
-    if (stopping_position[i] >= reel_pixel_length) stopping_position[i] -= reel_pixel_length;
+        // convenient here to remember the winning positions
+        for (var j = 0; j < row_count; j++) {
+            result[i][j] = stop_index + j;
+            if (result[i][j] >= reel_positions) result[i][j] -= reel_positions;
 
-    // convenient here to remember the winning positions
-    for (var j=0; j<row_count; j++) {
-      result[i][j] = stop_index + j;
-      if (result[i][j] >= reel_positions) result[i][j] -= reel_positions;
-
-      // translate reel positions into symbol
-      result[i][j] = reels[i][result[i][j]];
+            // translate reel positions into symbol
+            result[i][j] = reels[i][result[i][j]];
+        }
     }
-  }
 }
 
 function move_reel(i) {
-  reel_position[i] -= reel_speed[i];
+    reel_position[i] -= reel_speed[i];
 
-  // wrap
-  if (reel_position[i] < 0) {
-    reel_position[i] += reel_pixel_length;
-  }
+    // wrap
+    if (reel_position[i] < 0) {
+        reel_position[i] += reel_pixel_length;
+    }
 }
 
 // handle reels accelerating to full speed
 function logic_spinup() {
+    for (var i = 0; i < reel_count; i++) {
+        // move reel at current speed
+        move_reel(i);
 
-  for (var i=0; i<reel_count; i++) {
+        // accelerate speed
+        reel_speed[i] += spinup_acceleration;
+    }
 
-    // move reel at current speed
-    move_reel(i);
+    // if reels at max speed, begin spindown
+    if (reel_speed[0] == max_reel_speed) {
+        // calculate the final results now, so that spindown is ready
+        set_stops();
 
-    // accelerate speed
-    reel_speed[i] += spinup_acceleration;
-
-  }
-
-  // if reels at max speed, begin spindown
-  if (reel_speed[0] == max_reel_speed) {
-
-    // calculate the final results now, so that spindown is ready
-    set_stops();
-
-    game_state = STATE_SPINDOWN;
-  }
+        game_state = STATE_SPINDOWN;
+    }
 }
 
 // handle reel movement as the reels are coming to rest
 function logic_spindown() {
-
-  // if reels finished moving, begin rewards
-  if (reel_speed[reel_count-1] == 0) {
-
-    calc_reward();
-    game_state = STATE_REWARD;
-  }
-
-  for (var i=0; i<reel_count; i++) {
-
-    // move reel at current speed
-    move_reel(i);
-
-    // start slowing this reel?
-    if (start_slowing[i] == false) {
-
-      // if the first reel, or the previous reel is already slowing
-      var check_position = false;
-      if (i == 0) check_position = true;
-      else if (start_slowing[i-1]) check_position = true;
-
-      if (check_position) {
-      
-        if (reel_position[i] == stopping_position[i]) {
-          start_slowing[i] = true;          
-        }
-      }
+    // if reels finished moving, begin rewards
+    if (reel_speed[reel_count - 1] == 0) {
+        console.log("[SPIN]");
+        calc_reward();
+        game_state = STATE_REWARD;
     }
-    else {
-      if (reel_speed[i] > 0) {
-        reel_speed[i] -= spindown_acceleration;
 
-        if (reel_speed[i] == 0) {
-          try {
-            snd_reel_stop[i].currentTime = 0;
-            snd_reel_stop[i].play();
-          } catch(err) {};
+    for (var i = 0; i < reel_count; i++) {
+        // move reel at current speed
+        move_reel(i);
+
+        // start slowing this reel?
+        if (start_slowing[i] == false) {
+            // if the first reel, or the previous reel is already slowing
+            var check_position = false;
+            if (i == 0) check_position = true;
+            else if (start_slowing[i - 1]) check_position = true;
+
+            if (check_position) {
+                if (reel_position[i] == stopping_position[i]) {
+                    start_slowing[i] = true;
+                }
+            }
+        } else {
+            if (reel_speed[i] > 0) {
+                reel_speed[i] -= spindown_acceleration;
+
+                if (reel_speed[i] == 0) {
+                    try {
+                        snd_reel_stop[i].currentTime = 0;
+                        snd_reel_stop[i].play();
+                    } catch (err) {}
+                }
+            }
         }
-
-      }
     }
-  }
-
 }
 
 // count up the reward credits, play sound effects, etc.
 function logic_reward() {
+    if (payout == 0) {
+        game_state = STATE_REST;
+        return;
+    }
 
-  if (payout == 0) {
-    game_state = STATE_REST;
-    return;
-  }
+    // don't tick up rewards each frame, too fast
+    if (reward_delay_counter > 0) {
+        reward_delay_counter--;
+        return;
+    }
 
-  // don't tick up rewards each frame, too fast
-  if (reward_delay_counter > 0) {
-    reward_delay_counter--;
-    return;
-  }
+    payout--;
+    var metrics = ctx.measureText(`CREDITS: ${credits}`);
+    credits++;
+    ctx.clearRect(can.width * 0.74, ((can.height * 0.05) - (can.width*.025)), metrics.width, can.width*.025);
+    drawText(ctx, "CREDITS: " + credits, can.width * 0.74, can.height * 0.05);
 
-  payout--;
-  credits++;
-  cred_p.innerHTML = "Credits = " + credits;
-  
-  if (payout < reward_grand_threshhold) {
-    reward_delay_counter = reward_delay;
-  }
-  else { // speed up big rewards
-    reward_delay_counter += reward_delay_grand;
-  }
-
+    if (payout < reward_grand_threshhold) {
+        reward_delay_counter = reward_delay;
+    } else {
+        // speed up big rewards
+        reward_delay_counter += reward_delay_grand;
+    }
 }
 
 // update all logic in the current frame
 function logic() {
+    // REST to SPINUP happens on an input event
 
-  // REST to SPINUP happens on an input event
-
-  if (game_state == STATE_SPINUP) {
-    logic_spinup();
-  }
-  else if (game_state == STATE_SPINDOWN) {
-    logic_spindown();
-  }
-  else if (game_state == STATE_REWARD) {
-    logic_reward();
-  }
-  else if (game_state == STATE_REST && $("#autoSpinButton").hasClass("on")){
-    spin();
-  }
+    if (game_state == STATE_SPINUP) {
+        logic_spinup();
+    } else if (game_state == STATE_SPINDOWN) {
+        logic_spindown();
+    } else if (game_state == STATE_REWARD) {
+        logic_reward();
+    } else if (game_state == STATE_REST && $("#autoSpinButton").hasClass("on")) {
+        spin();
+    }
 }
 
-// given an input line of symbols, determine the payout
 function calc_line(s1, s2, s3) {
+    console.log(`${s1}:${s2}:${s3}`);
+    const isWild = (symbol) => wildCards.includes(symbol);
 
-  // perfect match
-  if (s1 == s2 && s2 == s3) {
-    return match_payout[s1] * bet;
-  }
+    // Perfect match
+    if (s1 === s2 && s2 === s3) return match_payout[s1] * bet;
 
-  // special case #1: triple ups
-  if ((s1 == 1 || s1 == 2 || s1 == 3) &&
-      (s2 == 1 || s2 == 2 || s2 == 3) &&
-      (s3 == 1 || s3 == 2 || s3 == 3)) {
-    return payout_ups * bet;
-  }
+    // Wildcard with two of a kind
+    if (isWild(s1) && s2 === s3) return match_payout[s2] * bet;
+    if (isWild(s2) && s1 === s3) return match_payout[s1] * bet;
+    if (isWild(s3) && s1 === s2) return match_payout[s1] * bet;
 
-  // special case #2: triple down
-  if ((s1 == 5 || s1 == 6 || s1 == 7) &&
-      (s2 == 5 || s2 == 6 || s2 == 7) &&
-      (s3 == 5 || s3 == 6 || s3 == 7)) {
-    return payout_downs * bet;
-  }
+    // Double Wildcard
+    if (isWild(s2) && isWild(s3)) return match_payout[s1] * bet;
+    if (isWild(s1) && isWild(s3)) return match_payout[s2] * bet;
+    if (isWild(s1) && isWild(s2)) return match_payout[s3] * bet;
 
-  // special case #3: bacon goes with everything
-  if (s1 == 9) {
-    if (s2 == s3) return match_payout[s2] * bet;
-
-    // wildcard trip ups
-    if ((s2 == 1 || s2 == 2 || s2 == 3) &&
-        (s3 == 1 || s3 == 2 || s3 == 3)) return payout_ups;
-
-    // wildcard trip downs
-    if ((s2 == 5 || s2 == 6 || s2 == 7) &&
-        (s3 == 5 || s3 == 6 || s3 == 7)) return payout_downs;
-  
-  }
-  if (s2 == 9) {
-    if (s1 == s3) return match_payout[s1] * bet;
-
-    // wildcard trip ups
-    if ((s1 == 1 || s1 == 2 || s1 == 3) &&
-        (s3 == 1 || s3 == 2 || s3 == 3)) return payout_ups * bet;
-
-    // wildcard trip downs
-    if ((s1 == 5 || s1 == 6 || s1 == 7) &&
-        (s3 == 5 || s3 == 6 || s3 == 7)) return payout_downs * bet;
-
-  }
-  if (s3 == 9) {
-    if (s1 == s2) return match_payout[s1] * bet;
-
-    // wildcard trip ups
-    if ((s1 == 1 || s1 == 2 || s1 == 3) &&
-        (s2 == 1 || s2 == 2 || s2 == 3)) return payout_ups * bet;
-
-    // wildcard trip downs
-    if ((s1 == 5 || s1 == 6 || s1 == 7) &&
-        (s2 == 5 || s2 == 6 || s2 == 7)) return payout_downs * bet;
-  }
-
-  // check double-bacon
-  if (s2 == 9 && s3 == 9) return match_payout[s1] * bet;
-  if (s1 == 9 && s3 == 9) return match_payout[s2] * bet;
-  if (s1 == 9 && s2 == 9) return match_payout[s3] * bet;
-
-  // no reward
-  return 0;
+    // No reward
+    return 0;
 }
 
 // calculate the reward
 function calc_reward() {
-  payout = 0;
-  
-  var partial_payout;
+    payout = 0;
 
-  // Line 1
-  partial_payout = calc_line(result[0][1], result[1][1], result[2][1]);
-  if (partial_payout > 0) {
-    payout += partial_payout;
-    highlight_line(1);
-  }
+    // Define the lines to check
+    const linesToCheck = [
+        { row: 1, cells: [result[0][1], result[1][1], result[2][1]] }, //middle row
+        { row: 2, cells: [result[0][0], result[1][0], result[2][0]] }, //top row
+        { row: 3, cells: [result[0][2], result[1][2], result[2][2]] }, //bottom row
+        { row: 4, cells: [result[0][0], result[1][1], result[2][2]] }, //TL-BR diagonal
+        { row: 5, cells: [result[0][2], result[1][1], result[2][0]] }, //BL-TR diagonal
+    ];
 
-  if (playing_lines > 1) {
-    // Line 2
-    partial_payout = calc_line(result[0][0], result[1][0], result[2][0]);
-    if (partial_payout > 0) {
-      payout += partial_payout;
-      highlight_line(2);
+    // Loop through lines and check for payouts
+    for (const line of linesToCheck.slice(0, playing_lines)) {
+        const partial_payout = calc_line(...line.cells);
+        if (partial_payout > 0) {
+            payout += partial_payout;
+            highlight_line(line.row);
+        }
     }
-  }
 
-  if (playing_lines > 2){
-      // Line 3
-    partial_payout = calc_line(result[0][2], result[1][2], result[2][2]);
-    if (partial_payout > 0) {
-      payout += partial_payout;
-      highlight_line(3);
+    // Play win sound if there's a payout
+    if (payout > 0) {
+        console.log(">>>>> PAYOUT: ", payout);
+        try {
+            snd_win.currentTime = 0;
+            snd_win.play();
+        } catch (err) {}
     }
-  }
-
-  if (playing_lines > 3) {
-    // Line 4
-    partial_payout = calc_line(result[0][0], result[1][1], result[2][2]);
-    if (partial_payout > 0) {
-      payout += partial_payout;
-      highlight_line(4);
-    }
-  }
-
-  if(playing_lines > 4){
-    // Line 5
-    partial_payout = calc_line(result[0][2], result[1][1], result[2][0]);
-    if (partial_payout > 0) {
-      payout += partial_payout;
-      highlight_line(5);
-    }
-  }
-
-  
-  if (payout > 0) {
-    try {
-      snd_win.currentTime = 0;
-      snd_win.play();
-    }
-    catch(err) {};
-  }
-
 }
 
 //---- Input Functions ---------------------------------------------
@@ -531,63 +422,92 @@ function calc_reward() {
 //   }
 // }
 
+function drawText(context, text, x, y) {
+    context.fillStyle = "aqua";
+    context.font = can.width * 0.025 + "px GraphicPixel";
+    context.textAlign = "left";
+    context.fillText(text, x, y);
+}
+
+function renderTextOnCanvas() {
+    drawText(ctx, "CREDITS: " + credits, can.width * 0.74, can.height * 0.05);
+    drawText(ctx, "LINES: " + playing_lines, can.width * 0.38, can.height * 0.78);
+    drawText(ctx, "BET: " + bet, can.width * 0.55, can.height * 0.78);
+}
+
 function spin() {
-  if (game_state != STATE_REST) return;
-  if (credits < (playing_lines * bet)) return;
+    if (game_state != STATE_REST) return;
+    if (credits < playing_lines * bet) return;
 
-  credits -= playing_lines * bet;
+    credits -= playing_lines * bet;
 
-  cred_p.innerHTML = "Credits = " + credits;
-
-  game_state = STATE_SPINUP;
-
+    render_reel();
+    game_state = STATE_SPINUP;
 }
 
-function increaseLines(){
-    if(playing_lines == maxLines)
-        playing_lines = 1;
-    else
-        playing_lines++;
+function increaseLines() {
+    if (playing_lines == maxLines) playing_lines = 1;
+    else playing_lines++;
 
-    lines_p.innerHTML = "Lines = " + playing_lines;
+    render_reel();
 }
 
-function increaseBet(){
-    if(bet == maxBet)
-        bet = 1;
-    else
-        bet++;
+function increaseBet() {
+    if (bet == maxBet) bet = 1;
+    else bet++;
 
-    bet_p.innerHTML = "Bet = " + bet;
+    render_reel();
 }
 
-function setBetMax(){
+function setBetMax() {
     bet = maxBet;
-    bet_p.innerHTML = "Bet = " + bet;
+    render_reel();
 }
 
 //---- Init Functions -----------------------------------------------
 
 function init() {
-  can = document.getElementById("slotsArea"); 
-  ctx = can.getContext("2d");
-  cred_p = document.getElementById("credits");
-  lines_p = document.getElementById("lines");
-  bet_p = document.getElementById("bet");
+    can = document.getElementById("slotsArea");
+    ctx = can.getContext("2d");
+    ctx.imageSmoothingEnabled = false;
 
-  cred_p.innerHTML = "Credits = " + credits;
-  lines_p.innerHTML = "Lines = " + playing_lines;
-  bet_p.innerHTML = "Bet = " + bet;
+    var font = new FontFace('GraphicPixel', `url(./assets/fonts/GraphicPixel-Regular.ttf)`);
 
-  //window.addEventListener('keydown', handleKey, true);
+    font.load().then(function (loadedFont) {
+        document.fonts.add(loadedFont);
+        font_loaded = true;
+        if (font_loaded && symbols_loaded && reels_bg_loaded) render_reel();
+    }).catch(function (error) {
+        console.error('Font loading failed:', error);
+    });
 
-  symbols[10].onload = function() {
-    symbols_loaded = true;
-    if (symbols_loaded && reels_bg_loaded) render_reel();
-  };
 
-  reels_bg.onload = function() {
-    reels_bg_loaded = true;
-    if (symbols_loaded && reels_bg_loaded) render_reel();
-  };
+    reels_bg.onload = function () {
+        can.width = reels_bg.naturalWidth;
+        can.height = reels_bg.naturalHeight;
+        var buttonPanel = document.getElementById("buttonPanel");
+        updateButtonPanelWidth(buttonPanel);
+        
+        reels_bg_loaded = true;
+        if (font_loaded && symbols_loaded && reels_bg_loaded) render_reel();
+    };
+    
+
+    var devicePixelRatio = window.devicePixelRatio || 1;
+    can.width = can.clientWidth * devicePixelRatio;
+    can.height = can.clientHeight * devicePixelRatio;
+    ctx.scale(devicePixelRatio, devicePixelRatio);
+
+    window.addEventListener('resize', function () {
+        var buttonPanel = document.getElementById("buttonPanel");
+        updateButtonPanelWidth(buttonPanel);
+    });
+
+    //window.addEventListener('keydown', handleKey, true);
+}
+
+function updateButtonPanelWidth(buttonPanel) {
+    if (!buttonPanel) return;
+    buttonPanel.style.height = "10%";
+    buttonPanel.style.width = window.innerHeight * 0.65 + "px";
 }

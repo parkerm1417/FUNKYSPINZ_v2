@@ -4,46 +4,45 @@ html,body {
     width: 100%;
     height: 100%;
     background: #000;
+    overflow-x: hidden;
 }
 
+/*Gameplay area*/
 canvas {
-margin: 0 auto;
-display: block;
-cursor: none;
+    height: 100%;
+    width: auto;
+    position: absolute;
 }
 
 /*The wrapper determines the overall background and canvas size for the game, everything else is in relation to this*/
 #wrapper {
-    background: url(./assets/images/background/LuckyFUNKZ.png);
-    background-size: 91% 100%;
-    width: 820px;
-    height: 653px;
+    margin: 0 auto;
+    /*background: url(./assets/images/background/LuckyFUNKZ.png);*/
+    background-size: auto 100%;
+    background-repeat: no-repeat;
+    background-position: center;
+    width: 100%;
+    height: 100%;
     position: absolute;
-    display: block;
-    flex-direction: column;
+    display: flex;
+    image-rendering: pixelated;
     justify-content: center;
-    align-items: center;
     touch-action: none;
-    top: 0;
-    left: 0;
 }
 
-/*Gameplay area*/
-#slotsArea {
-    width: 92%;
-    height: 57%;
+#buttonPanel{
+    display:flex;
+    margin: auto;
+    top: 81%;
     position: absolute;
-    top: 17%;
-    left: 21%;
 }
 
 /*CSS for the auto play button*/
 #autoSpinButton {
-    height: 13%;
-    width: 11%;
-    position: absolute;
-    top: 74%;
-    left: 26%;
+    height:80%;
+    aspect-ratio:16/9;
+    background-repeat: no-repeat;
+    background-position: center;
 }
 
 #autoSpinButton.off{
@@ -54,6 +53,8 @@ cursor: none;
 #autoSpinButton.on{
     background: url('./assets/images/ui/buttons/auto_pressed.png');
     background-size: 100% 100%;
+    box-shadow: 0 0 20px 5px rgba(0, 255, 0, 0.7);
+    border-radius: 100%;
 }
 
 #autoSpinButton:active{
@@ -65,27 +66,36 @@ cursor: none;
 #lineButton{
     background: url('./assets/images/ui/buttons/lines_unpressed.png');
     background-size: 100% 100%;
-    height: 11%;
-    width: 9%;
+    background-repeat: no-repeat;
+    background-position: center;
+    aspect-ratio:16/9;
+    height:50%;
     position: absolute;
-    top: 72%;
-    left: 34%;
+    left: 27%;
+    box-shadow: 0 0 20px 5px rgba(255, 0, 255, 0.7);
+    border-radius: 100%;
 }
 
 #lineButton:active{
     background: url('./assets/images/ui/buttons/lines_pressed.png');
     background-size: 100% 100%;
+    box-shadow: 0 0 20px 5px rgba(255, 0, 255, 0.5);
+
 }
 
 /*CSS for the bet one button*/
 #betButton{
     background: url('./assets/images/ui/buttons/bet_one_unpressed.png');
     background-size: 100% 100%;
-    height: 11%;
-    width: 9%;
+    background-repeat: no-repeat;
+    background-position: center;
+    aspect-ratio:16/9;
+    height:50%;
     position: absolute;
-    top: 75%;
-    left: 41%;
+    left: 44%;
+    top: 20%;
+    box-shadow: 0 0 20px 5px rgba(255, 0, 255, 0.7);
+    border-radius: 100%;
 }
 
 #betButton:active{
@@ -95,13 +105,17 @@ cursor: none;
 
 /*CSS for the max bet button*/
 #maxBetButton{
+
     background: url('./assets/images/ui/buttons/bet_max_unpressed.png');
     background-size: 100% 100%;
-    height: 11%;
-    width: 9%;
+    background-repeat: no-repeat;
+    background-position: center;
+    aspect-ratio:16/9;
+    height:50%;
     position: absolute;
-    top: 72%;
-    left: 48%;
+    left: 61%;
+    box-shadow: 0 0 20px 5px rgba(255, 0, 255, 0.7);
+    border-radius: 100%;
 }
 
 #maxBetButton:active{
@@ -113,55 +127,17 @@ cursor: none;
 #spinButton{
     background: url('./assets/images/ui/buttons/spin_unpressed.png');
     background-size: 100% 100%;
-    height: 13%;
-    width: 11%;
     position: absolute;
-    top: 74%;
-    left: 54%;
+    height:80%;
+    aspect-ratio:16/9;
+    left: 79%;
+    background-repeat: no-repeat;
+    background-position: center;
+    box-shadow: 0 0 20px 5px rgba(0, 225, 255, 0.7);
+    border-radius: 100%;
 }
 
 #spinButton:active{
     background: url('./assets/images/ui/buttons/spin_pressed.png');
     background-size: 100% 100%;
-}
-
-@font-face {
-    font-family: GraphicPixel;
-    src: url("./assets/fonts/GraphicPixel-Regular.ttf");
-}
-  
-#credit_div {
-    position: absolute;
-    top: 66%;
-    left: 29%;
-    width: 15%;
-    text-align: left;
-    font-size: 12pt;
-    text-shadow: 1px 1px 2px #38ff00, 0 0 1em #ebff00, 0 0 0.2em #00ffaa;
-    font-family: GraphicPixel;
-    color: #38ff00;
-}
-
-#lines_div {
-    position: absolute;
-    top: 66%;
-    left: 53%;
-    width: 100px;
-    text-align: left;
-    font-size: 12pt;
-    text-shadow: 1px 1px 2px red, 0 0 1em #9600ff, 0 0 0.2em #ff004e;
-    font-family: GraphicPixel;
-    color: #e0e91b;
-}
-  
-#bet_div {
-    position: absolute;
-    top: 66%;
-    left: 44%;
-    width: 10%;
-    text-align: left;
-    font-size: 12pt;
-    text-shadow: 1px 1px 2px red, 0 0 1em #00ffa1, 0 0 0.2em #00f6ff;
-    font-family: GraphicPixel;
-    color: aqua;
 }
