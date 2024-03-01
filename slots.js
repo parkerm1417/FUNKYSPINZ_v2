@@ -148,7 +148,6 @@ function render_reel() {
     ctx.clearRect(0, 0, can.width, can.height);
 
     const aspectRatio = reels_bg.width / reels_bg.height;
-    console.log("client width: ", can.clientWidth);
     ctx.imageSmoothingEnabled = false;
 
     const centerX = (can.width - reel_area_width) / 2;
@@ -329,8 +328,10 @@ function logic_reward() {
     }
 
     payout--;
+    var metrics = ctx.measureText(`CREDITS: ${credits}`);
     credits++;
-    credit_div.innerHTML = "CREDITS: " + credits;
+    ctx.clearRect(can.width * 0.74, ((can.height * 0.05) - (can.width*.025)), metrics.width, can.width*.025);
+    drawText(ctx, "CREDITS: " + credits, can.width * 0.74, can.height * 0.05);
 
     if (payout < reward_grand_threshhold) {
         reward_delay_counter = reward_delay;
@@ -482,13 +483,10 @@ function init() {
 
 
     reels_bg.onload = function () {
-        console.log(can.height, reels_bg.naturalHeight);
         can.width = reels_bg.naturalWidth;
         can.height = reels_bg.naturalHeight;
         var buttonPanel = document.getElementById("buttonPanel");
         updateButtonPanelWidth(buttonPanel);
-    
-        console.log("Button Panel Width:", buttonPanel.style.width);  // Add this line for debugging
         
         reels_bg_loaded = true;
         if (font_loaded && symbols_loaded && reels_bg_loaded) render_reel();
@@ -496,7 +494,6 @@ function init() {
     
 
     var devicePixelRatio = window.devicePixelRatio || 1;
-    console.log(can.clientWidth, can.clientHeight);
     can.width = can.clientWidth * devicePixelRatio;
     can.height = can.clientHeight * devicePixelRatio;
     ctx.scale(devicePixelRatio, devicePixelRatio);
